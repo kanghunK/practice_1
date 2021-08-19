@@ -3,7 +3,7 @@
   <head>
     <meta>
     <title></title>
-    <script type="text/javascript" src="../../javascript_jquery_code/jquery-3.5.1.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <style>
         body {
             fon-size: 9pt;
@@ -26,26 +26,18 @@
         function init(){
             $Panel = $("#panel");
         }
+        
         function start(){
-            setInterval(addTag,20);
+            //클로저 활용.. 익명함수를 사용해서 내부에 함수를 리턴해야 한다.
+            let pause = setInterval(addTag,1000);
+            setTimeout(() => {
+                stop(pause);
+            }, 10000);
+            // setTimeout(stop(pause),5000);
         }
-        // window.onload=function(){
-        //     setInterval(function(){
-        //       var $Span =$("<span></span>");
-        //       //색,글자크기 변경
-        //       randomColor = "#"+(parseInt(Math.random()*0xffffff)).toString(16);
-        //       fontSize = Math.floor((Math.random()*50)+10)+"px";
-        //       $Span.css({
-        //           color:randomColor,
-        //           fontSize:fontSize
-        //           // display:inline-block;
-        //       })
-        //       $Span.html(count);
-        //       Panel.append($Span);
-        //
-        //       count++;
-        //     },1000);
-        // }
+        function stop(pause) {
+            clearInterval(pause);
+        }
         function addTag(){
             var $span = $("<span></span>");
 
