@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta>
+    <title></title>
+    <script type="text/javascript" src="../../javascript_jquery_code/jquery-3.5.1.min.js"></script>
+    <style>
+        body {
+            fon-size: 9pt;
+        }
+
+        #panel{
+            width: 600px;
+            overflow: visible;
+            border:1px dotted #CCC;
+            font-size: 20px;
+        }
+    </style>
+    <script>
+        var count = 1;
+        var $Panel = null;
+        jQuery(document).ready(function(){
+            init();
+            start();
+        });
+        function init(){
+            $Panel = $("#panel");
+        }
+        function start(){
+            setInterval(addTag,20);
+        }
+        // window.onload=function(){
+        //     setInterval(function(){
+        //       var $Span =$("<span></span>");
+        //       //색,글자크기 변경
+        //       randomColor = "#"+(parseInt(Math.random()*0xffffff)).toString(16);
+        //       fontSize = Math.floor((Math.random()*50)+10)+"px";
+        //       $Span.css({
+        //           color:randomColor,
+        //           fontSize:fontSize
+        //           // display:inline-block;
+        //       })
+        //       $Span.html(count);
+        //       Panel.append($Span);
+        //
+        //       count++;
+        //     },1000);
+        // }
+        function addTag(){
+            var $span = $("<span></span>");
+
+            var randomColor = "#"+(parseInt(Math.random()*0xffffff)).toString(16);
+            var font_Size = Math.floor((Math.random()*40)+10)+"px";
+
+            $span.css({
+               color:randomColor,
+               fontSize:font_Size,
+               display:"inline-block"
+            })
+            count++;
+            $span.html(count);
+
+            $Panel.append($span);
+            //여기서 this는 window.
+            this.window.scrollTo(0,window.document.body.scrollHeight);
+        }
+    </script>
+  </head>
+  <body>
+      <div id="panel">
+
+      </div>
+  </body>
+</html>

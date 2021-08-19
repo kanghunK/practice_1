@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta>
+    <title></title>
+    <script type="text/javascript" src="../../javascript_jquery_code/jquery-3.5.1.min.js"></script>
+    <style>
+        #panel{
+            width: 1000px;
+            height: 600px;
+            border:1px solid #999;
+            position:relative;
+            top: 50px;
+            left: 50px;
+        }
+        #fish{
+          position:absolute;
+          left:250px;
+          top:150px;
+        }
+    </style>
+    <script>
+        window.onload=function(){
+            var $fish=$("#fish");
+            var panelWidth = parseInt($("#panel").css("width"));
+            var panelHeight = parseInt($("#panel").css("height"));
+
+            panelWidth = panelWidth-parseInt($fish.css("width"));
+            panelHeight = panelHeight-parseInt($fish.css("height"));
+
+            $("#btnStart").click(function(){
+                var left = parseInt(Math.random()*panelWidth);
+                var top = parseInt(Math.random()*panelHeight);
+
+
+                $fish.css({
+                    left: left,
+                    top: top
+                  })
+                // console.log($fish.css("left"),$fish.css("top"));
+            });
+
+        }
+    </script>
+  </head>
+  <body>
+      <div>
+          <button id="btnStart">클릭하면하면 물고기가 움직여요.</button>
+      </div>
+      <div id="panel">
+          <img src="fish1.jpg" id="fish">
+      </div>
+      <!-- <ul class="menu">
+          <li>menu1</li>
+          <li>menu2</li>
+          <li class="select">menu3</li>
+          <li>menu4</li>
+          <li>menu5</li>
+      </ul> -->
+  </body>
+</html>

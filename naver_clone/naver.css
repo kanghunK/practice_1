@@ -1,0 +1,546 @@
+
+/* CaseCading Style Sheet */
+
+.relative {
+    position: relative;
+}
+
+.center-align {
+    margin: 0 auto;
+    width: 1080px;
+    position: relative;
+}
+
+#wrap {
+    min-width: 1190px;
+    overflow: hidden;
+}
+
+header {
+    height: 160px;
+}
+
+#header-search {
+    clear: both;    
+    padding-top: 70px;
+}
+
+#header-search a {
+    text-decoration: none;
+    vertical-align: middle;         /* vertical-align을 쓰는 경우에 position이  */
+}                                   /* inline이나 inline-block 이어야한다. */
+
+.blind {
+    position: absolute;
+    clip: rect(0 0 0 0);
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+} 
+
+#header-top {
+    position: absolute;
+    top: 12px;
+    right: 27px;
+    float: left;
+    font-size: 11px;
+}
+
+#hearder-top span:first-child {
+    color: #888;
+    letter-spacing: -1px;
+    font-size: 11px;
+    line-height: 22px;
+}
+
+#search-keyboard {
+    width: 20px;
+    height: 12px;
+    background-image: url(https://s.pstatic.net/static/www/img/uit/2021/sp_main_57f073.png);
+    background-position: -300px -279px;
+    background-size: 444px 439px;
+    background-repeat: no-repeat;
+    vertical-align: top;
+    display: inline-block;
+    vertical-align: middle;
+    position: absolute;
+    top: 40%;
+    margin-left: 26px;
+}
+
+#search-history {
+    background-image: url(https://s.pstatic.net/static/www/img/uit/2021/sp_main_57f073.png);
+    background-position: -96px -296px;
+    background-size: 444px 439px;
+    display: inline-block;
+    width: 10px;
+    height: 5px;
+    background-repeat: no-repeat;
+    vertical-align: top;
+    vertical-align: middle;
+    position: absolute;
+    margin-left: 57px;
+    top: 50%;
+}
+
+div#header-search h1 {                /* '>' 자식 태그 표시 방법 바로 하위에 있는 태그에만 적용*/
+    width: 202px;
+    height: 49px;
+    display: inline-block;
+    /* background-position: 0px -142px;
+    background-image: url(./naver_ImgMain.png);
+    background-repeat: no-repeat; */
+    background: url(./naver_ImgMain.png) 0px -145px no-repeat;
+    background-size: 402px 400px;
+    text-indent: 120%;
+    overflow: hidden;
+    /* a 태그 밑줄 제거*/
+    text-decoration: none;
+    position: absolute;
+    left: 45px;
+}
+
+
+#header-search h2 {                 /* ' ' 자손 태그 적용시( 자식뿐아니라 손주 증손주까지 탐색) */
+    display: none;
+}
+
+#search_box {
+    position: absolute;
+    top: 50%;
+    left: 268px;
+    margin-top: 38px;
+}
+
+#search_box form {
+    display: inline-block;
+}
+
+#header-search fieldset {
+    margin-left: 20px;
+    padding: 12px 0px 12px 10px;;
+    width: 586px;
+    height: 51px;
+    display: inline-block;          /* inline-block 과 inline 차이 */
+    /* 색상 HEX 표기법 */
+    border: 2px solid #19ce60;
+    vertical-align: middle;
+    position: relative;
+}                                   /* inline은 span 태그와 같이 딱 컨텐츠 내용크기만큼만 공간을 차지하고*/
+                                    /* inline-block은 내용물사이즈에서 width, height 등의 추가적인 공간설정가능*/
+#header-search fieldset input {     /* inline은 컨테이닝 블록에서 제외한다.*/
+    border: none;
+    padding: 0;
+    outline: none;
+    vertical-align: top;
+    width: 444px;
+    height: 24px;
+}                                   
+
+#header-search fieldset button {
+    width: 49px;
+    height: 49px;
+    border: none;
+    padding: 0;
+    background: #19ce60;
+    position: absolute;             
+    right: -1px;
+    bottom: -1px;
+}
+
+#search-image {
+    width: 21px;
+    height: 21px;
+    display: inline-block;
+    background: url(./naver_ImgMain.png) -420px -208px no-repeat;
+    background-size: 444px 439px;
+    display: inline-block;
+    /* margin: 14px; */
+    position: absolute;
+    transform: translate(-50%, -50%);
+}
+
+nav {
+    border-top: 1px solid #f1f3f6;
+    border-bottom: 1px solid #d1d8e4;
+    min-width: 1190px;
+    position: relative;
+    z-index: 1000;
+}
+
+.list_nav {
+    float: left;
+    padding: 0 30px;
+    margin: 0;
+    list-style: none;
+    line-height: 30px;
+}
+
+div#nav_1 {
+    width: 1190px;
+    padding: 10px 0;
+}
+
+.list_nav li {
+    margin-left: 12px;
+    float: left;
+}
+
+/* #nav_1 ul.list_nav {
+    padding-left: 10%;
+} */
+
+nav .nav_item {                 /* a 태그 */
+    display: block;
+    text-decoration: none;
+    color: #03c75a;
+    font-size: 15px;
+    line-height: 30px;
+    font-weight: 700;
+    letter-spacing: -.3px;
+}
+
+.list_nav li:first-child span:first-child {
+    display: inline-block;
+    width: 21px;
+    height: 21px;
+    margin: -9px 9px 0 0;
+    background-image: url(https://s.pstatic.net/static/www/img/uit/2021/sp_main_57f073.png); 
+    background-position: -420px -279px;
+    background-size: 444px 439px;
+    background-repeat: no-repeat;
+    vertical-align: middle;
+}
+
+li a.list_nav_bk{
+    color: black;
+}
+
+
+.nav-divider {
+    /* float: right; */
+    display: inline-block;
+    width: 1px;
+    height: 14px;
+    background: #ebeef3;
+}
+
+#search-ranking {
+    position: absolute;
+    right: 107px;
+    top: 9px;
+    width: 130px;
+    height: 27px;
+}
+
+#search-ranking ul {
+    display: none;
+    list-style: none;
+    position: absolute;
+    left: -36px;
+    margin: 0;
+    padding: 17px;
+    width: 250px;
+    height: 334px;
+    border: 1px solid #aaa;
+    background: white;
+    font-size: 15px;
+}
+
+#search-ranking:hover ul {
+    display: inline-block;
+}
+
+
+#rank-num {
+    margin-top: -9px;
+    color: #00ab33;
+    font-size: 15px;
+}
+
+.ranking_list {
+    font-size: 15px;
+}
+
+main {
+    background-color: #f2f4f7;
+    display: inline-block;
+    width: 100%;
+    position: relative;
+    z-index: 100;
+}
+
+#main-centered {
+    padding: 8px 10px;
+    width: 1119px;
+}
+
+#main-first-block,
+#main-second-block {
+    display: inline-block;
+    width: 100%;
+    vertical-align: top;
+    margin-bottom: 8px;
+}
+
+#main-second-block .float-left:first-child {
+    float: left;
+    width: 740px;
+    margin: 0 8px 0px 0;
+}
+
+#main-second-block .float-left:nth-child(2) {
+    float: left;
+    width: 350px;
+}
+
+#main-ad {
+    float: left;
+    width: 740px;
+    height: 135px;
+    background: #555 ;
+    margin-right: 8px;
+}
+
+#main-login {
+    float: left;
+    width: 350px;
+    height: 135px;
+    vertical-align: top;
+    background-color: white;
+    padding: 16px 16px 12px 17px;
+    background-color: #f7f9fa;
+    border: 1px solid #dae1e6;
+}
+
+#main-login .login-text {
+    color: grey;
+    font-family: -apple-system,BlinkMacSystemFont,"Malgun Gothic","맑은 고딕",helvetica,"Apple SD Gothic Neo",sans-serif;
+    font-size: 12px;
+    margin: 0;
+}
+
+#main-login .link_login {
+    display: block;
+    padding: 15px 0;
+    margin-top: 11px;
+    background-color: #19ce60;
+    border: 1px solid #15c654;
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    font-size: 13px;
+    color: #fff;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+}
+
+#main-login .login-signup {
+    float: right;
+    margin: 2px 5px 0 0;
+    font-size: 12px;
+    text-decoration: none;
+    color: #505050;
+}
+
+#main-login .sub_area {
+    margin: 14px 8px 0 4px;
+}
+
+#main-login .login-signup:hover {
+    text-decoration: underline;
+}
+
+
+#main-ytn {
+    display: inline-block;
+    width: 740px;
+    height: 46px;
+    margin-right: 8px;
+    margin-bottom: 8px;
+    background: white;
+    vertical-align: top;
+}
+
+#main-newsstand {
+    display: inline-block;
+    width: 740px;
+    height: 246px;
+    background: white;
+    vertical-align: top;
+}
+
+#main-newsstand h3 {
+    height: 45px;
+    border-bottom: 1px solid #ebeef3;
+}
+
+#main-newsstand ul {
+    float: left;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    width: 100%;
+}
+
+#main-newsstand li {
+    float: left;
+    width: calc(100% / 6);
+    height: 67px;
+    border-right: 1px solid #dae1e6;
+    border-bottom: 1px solid #dae1e6;
+    text-align: center;
+}
+
+#main-newsstand li img {
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);        /* 세로 가운데 정렬 */
+    height: 20px;
+}                                       /* transform: translateY(-50%)은 이미지 세로 높이의 반절만큼 올려줌 */         
+
+#main-ytn h3, #main-ytn ol {
+    display: inline-block;
+}
+
+#main-weather {
+    float: left;
+    width: 100%;
+    height: 142px;
+    margin-bottom: 8px;
+    background: white;
+}
+
+#main-second-ad {
+    float: left;
+    width: 100%;
+    height: 150px;
+    background: #555 ;
+}
+
+#main-third-block {
+    display: inline-block;
+    width: 100%;
+    height: 1539px;
+    margin-bottom: 8px;
+    vertical-align: top;
+}
+
+#main-category {
+    float: left;
+    width: 740px;
+    height: 100%;
+    background: white;
+    margin-right: 8px;
+}
+
+#main-shopping {
+    float: left;
+    width: 350px;
+    height: 1539px;
+    background: white;
+    margin-bottom: 8px;
+}
+
+#main-shopping iframe {
+    width: 100%;
+    height: 100%;
+}
+
+#main-fourth-block {
+    display: inline-block;
+    width: 100%;
+    vertical-align: top;
+}
+
+#main-event {
+    float: left;
+    width: 740px;
+    height: 130px;
+    background: white;
+    margin-right: 8px;
+}
+
+#main-third-ad {
+    float: left;
+    width: 330px;
+    height: 130px;
+    background: #555;
+}
+
+#main-category-top {
+    display: inline-block;
+    width: 100%;
+    border-bottom: 1px solid #ebeef3;
+}
+
+#subject-all, #subject-list,
+#subject-prev, #subject-next {
+    float: left;
+    height: 45px;
+}
+
+
+#subject-list {
+    width: 603px;
+    position: relative;
+}
+
+#subject-list ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    height: 45px;
+    width: 700px;
+}
+
+#subject-list li {
+    float: left;
+    margin-right: 10px;
+    padding: 14px 7px 0;
+    font-size: 14px;
+    font-family: NanumSquare,Dotum,"돋움",Helvetica,AppleSDGothicNeo,sans-serif;
+}
+
+.opacity {
+    opacity: 0.5;
+    background: white;
+}
+
+.opacity.left {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 45px;
+    width: 15px;
+}
+
+.opacity.right {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 45px;
+    width: 15px;
+}
+
+#subject-list li.highlight {
+    border-bottom: 3px solid #00c73c;
+    color: #00b336;
+    font-weight: 700;
+    height: 45px;
+}
+
+
+#subject-all, #subject-prev, #subject-next {
+    position: relative;
+    width: 45px;
+    background: white;
+    border: none;
+    border-left: 1px solid #ebeef3;
+}
+
+
+
