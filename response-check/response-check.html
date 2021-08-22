@@ -1,0 +1,133 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>response-check</title>
+    <style>
+        #screen {
+            width: 300px;
+            height: 200px;
+            text-align: center;
+            user-select: none;
+        }
+
+        #screen.waiting {
+            background-color: aqua;
+        }
+        
+        #screen.ready {
+            background-color: red;
+            color: white;
+        }
+
+        #screen.now {
+            background-color: greenyellow;
+        }
+
+        #result {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div id="screen" class="waiting">클릭해서 시작하세요</div>
+    <div id="result"></div>
+    <script>
+        const $screen = document.querySelector('#screen');
+        const $result = document.querySelector('#result');
+
+        //주의! color_check 안에 변수를 선언할 경우 함수가 끝나면 
+        // startTime, endTime의 내용이 모두 지워짐으로 endTime-startTime 계산을 할 수 없다.
+        let randomTimer;
+        let startTime, endTime;
+        //반응속도 평균 변수
+        const records = []
+        let timeoutId;
+
+        function color_check(e) {
+            if(e.target.classList.contains("waiting")) {
+                //준비화면 동작으로 전환
+                $screen.classList.add('ready');
+                $screen.classList.remove('waiting');
+                $screen.textContent = `초록색으로 변하면 클릭하세요`;
+                //랜덤 타이머 시작
+                randomTimer = Math.floor(Math.random()*2000)+1000;
+                timeoutId = setTimeout(() => {
+                    $screen.classList.remove('ready');
+                    $screen.classList.add('now');
+                    startTime = new Date();
+                },randomTimer);
+            } else if(e.target.classList.contains("ready")) {
+                //준비화면에서 클릭시 경고
+                alert('준비상태에서 클릭하셨습니다.');
+                $screen.classList.remove('ready');
+                $screen.classList.add('waiting');
+                $screen.innerHTML = '너무 성급하시군요'+ '<br>' + '다시 클릭하세요';
+                clearTimeout(timeoutId);
+            } else if(e.target.classList.contains("now")) {
+                //반응속도 계산
+                endTime = new Date();
+                const current = endTime-startTime; 
+                records.push(current);
+
+                /*
+
+                형식:  배열.reduce((누적값, 현재값) => {
+                        return 새로운 누적값;
+                    },초기값);
+
+                records.reduce((a,c) => a + c) / records.length; reduce()함수 활용
+                a는 초기값, c는 records에 들어있는 다음값 a+c를 계산해서 다시 a에 넣고 
+                record의 다음 값을 c에 넣어서 다시 계산.
+                 원래 초기 값은 [].reduce(() => {},초기값); 이자리에 들어오지만 없을 경우 
+                []의 첫번째 값이 a로 들어오게 된다. 
+                 추가로 [].reduce((a, c, i) => {a[i] = c; return a},{});와 같이 
+                 객체를 배열로 바꿀 수도 있다. 결과: [~,~,~];
+
+                */
+
+                const average = records.reduce((a,c) => a + c) / records.length;
+                $result.textContent = `현재 반응속도: ${current}, 평균 반응속도: ${average} `;
+                const topFive = records.sort((p, c) => p - c).slice(0, 5);
+                //순위 매기기
+
+                topFive.forEach((top, index) => {
+                    $result.append(
+                        document.createElement('br'),
+                        `${index + 1}위: ${top}ms`,
+                    );
+                });
+                // debugger;
+    /*          이전코드
+                let recordTable = document.createElement('ul');
+
+                for(let [index, value] of records.entries()) {
+                    let content = document.createElement('li');
+                    content.textContent = `${index+1}: ${value}`;
+                    recordTable.appendChild(content);
+                    // recordTable.append(`${index+1}: ${value}`);
+                    if(index > 3)
+                        break;
+                }
+                $result.appendChild(recordTable);
+
+    */
+                startTime = null;
+                endTime = null;
+
+                $screen.classList.remove("now");
+                $screen.classList.add("waiting");
+                $screen.textContent = `클릭해서 시작하세요`;
+            }
+        }
+
+
+        function init() {
+            $screen.addEventListener('click',color_check);
+        }
+
+        init();
+    </script>
+</body>
+</html>
