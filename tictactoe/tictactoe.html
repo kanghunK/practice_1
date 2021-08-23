@@ -1,0 +1,73 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        table {
+            border-collapse: collapse;
+        }
+
+        td {
+            border: 1px solid black;
+            width: 40px;
+            height: 40px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        //구조분해 할당(distructering)
+        const { body } = document; 
+        //const body = document.body; 를 위와 같이 쓸 수 있다.
+
+        //추가 문법. 배열 구조분해 할당
+        // const arr = [1,2,3,4,5];
+        // const one = arr[0];
+        // const two = arr[1];
+        // const three = arr[2];
+        // const four = arr[3];
+        // const five = arr[4];
+        // 위의 코드를 아래와 같이 표현 가능하다.
+        // const [one,two,three,four,five] = arr;
+
+        const rows = [];
+        let turn = 'O';
+        // const data = [];
+        // for (let i = 0; i < 3; i++) {
+        //     data.push([]);
+        // }
+
+        const $table = document.createElement('table');
+        const $result = document.createElement('div');
+
+        for (let i = 0; i < 3; i++) {
+            const $tr = document.createElement('tr');
+            const cells = [];
+            for (let j = 0; j < 3; j++) {
+                $td = document.createElement('td');
+                cells.push($td);
+                $td.addEventListener('click',(event) => {
+                    //칸에 글자가 있나?
+                    if (event.target.textContent) return;
+                    event.target.textContent = turn;
+                    //승부 확인
+                    if (turn === 'O') {
+                        turn = 'X';
+                    } else if (turn === 'X') {
+                        turn = 'O';
+                    }
+                });
+                $tr.append($td);
+            }
+            rows.push(cells);
+            $table.append($tr);
+        }
+
+        body.append($table);
+        body.append($result);
+    </script>
+</body>
+</html>
