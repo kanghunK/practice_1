@@ -1,4 +1,5 @@
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -17,10 +18,11 @@
         }
     </style>
 </head>
+
 <body>
     <script>
         //구조분해 할당(distructering)
-        const { body } = document; 
+        const { body } = document;
         //const body = document.body; 를 위와 같이 쓸 수 있다.
 
         //추가 문법. 배열 구조분해 할당
@@ -33,6 +35,10 @@
         // 위의 코드를 아래와 같이 표현 가능하다.
         // const [one,two,three,four,five] = arr;
 
+        // 유사배열 할당 문법
+        // $table.children 이 유사배열 객체라고 할 때 forEach문을 사용할 수 없으니
+        // 이를 대체해서 "Array.from()"이란 걸 쓰면 배열로 변환된다. Array.from($table.children);
+
         const rows = [];
         let turn = 'O';
         // const data = [];
@@ -43,31 +49,131 @@
         const $table = document.createElement('table');
         const $result = document.createElement('div');
 
-        for (let i = 0; i < 3; i++) {
-            const $tr = document.createElement('tr');
-            const cells = [];
-            for (let j = 0; j < 3; j++) {
-                $td = document.createElement('td');
-                cells.push($td);
-                $td.addEventListener('click',(event) => {
-                    //칸에 글자가 있나?
-                    if (event.target.textContent) return;
-                    event.target.textContent = turn;
-                    //승부 확인
-                    if (turn === 'O') {
-                        turn = 'X';
-                    } else if (turn === 'X') {
-                        turn = 'O';
-                    }
-                });
-                $tr.append($td);
+        // 승자 판별 함수
+        const checkWinner = (target) => {
+            let rowIndex = target.parentNode.rowIndex;
+            let cellIndex = target.cellIndex;
+
+            // 위 내용 수정 후 주석처리 rowIndex와 cellIndex
+            // rows.forEach((row, ri) => {
+            //     row.forEach((cell,ci) => {
+            //         if (cell === target) {
+            //             rowIndex = ri;
+            //             cellIndex = ci;
+            //         }
+            //     });
+            // });
+            // 세 칸 다 채워졌나?
+            let hasWinner = false;
+            // 가로줄 검사
+            if (
+                rows[rowIndex][0].textContent === turn &&
+                rows[rowIndex][1].textContent === turn &&
+                rows[rowIndex][2].textContent === turn 
+                 
+             ) {
+                hasWinner = true;
             }
+            // 세로줄 검사
+            if (
+                rows[0][cellIndex].textContent === turn &&
+                rows[1][cellIndex].textContent === turn &&
+                rows[2][cellIndex].textContent === turn 
+                 
+             ) { 
+                hasWinner = true;
+            }
+            // 대각선 검사
+            if (
+                rows[0][0].textContent === turn &&
+                rows[1][1].textContent === turn &&
+                rows[2][2].textContent === turn 
+                 
+             ) {
+                hasWinner = true;
+            }
+            if (
+                rows[0][2].textContent === turn &&
+                rows[1][1].textContent === turn &&
+                rows[2][0].textContent === turn 
+                 
+             ) {
+                hasWinner = true;
+            }
+            return hasWinner;    
+        }
+
+
+        // Table 클릭 시 o,x 표시하는 callback
+        const callback = (event) => {
+            /*  
+                현재 event.target은 td인데 $table에 이벤트를 걸어준상황.
+                즉, 이벤트 버블링이 발생해서 td에서 table까지 이벤트가 전파됨. table을 선택하고 싶으면 currentTarget 사용.
+                event.target -> td가 선택됨; event.currentTarget -> $table이 선택됨
+            */
+
+            /*  만약 위와 같은 이벤트 버블링 현상을 막고 싶다면
+                event.stopPropagation();을 사용하면 된다.   
+                
+                반대로 이벤트 전파를 부모에서 자식으로 전파하고 싶으면
+                Event Capture(capture :true)을 쓰면 된다.
+            */
+
+            //칸에 글자가 있나?
+            if (event.target.textContent !== '') { //빈칸이 아니면
+                console.log('빈칸이 아닙니다.');
+                return;
+            }
+            console.log('빈칸입니다.');
+            event.target.textContent = turn;
+
+            const hasWinner = checkWinner(event.target);
+            //승부 판단
+            if (hasWinner) {
+                $result.textContent = `${turn}님이 승리하셨습니다.!`;
+                $table.removeEventListener('click',callback);
+                return;
+            }
+
+            // 무승부 판단
+            // every로 코드 최신화
+            let draw = rows.flat().every((cell) => cell.textContent);
+
+            // let draw = true;
+            // rows.forEach((row) => {
+            //     row.forEach((cell) => {
+            //         console.log(row, cell);
+            //         if(!cell.textContent) {
+            //             draw = false;
+            //         }
+            //     })
+            // });
+            if (draw) {
+                $result.textContent = `무승부`;
+                return;
+            }
+
+            turn = (turn === 'O' ? 'X':'O');
+        };
+
+
+            for (let i = 0; i < 3; i++) {
+                const $tr = document.createElement('tr');
+                const cells = [];
+                for (let j = 0; j < 3; j++) {
+                    $td = document.createElement('td');
+                    cells.push($td);
+                    $tr.append($td);
+                }
             rows.push(cells);
             $table.append($tr);
         }
+        // 클릭 시 o,x 표시..이벤트 버블링 활용.(이벤트가 부모태그 따라서 방울방울 올라간다.)
+        $table.addEventListener('click', callback);
 
         body.append($table);
         body.append($result);
     </script>
 </body>
+
 </html>
