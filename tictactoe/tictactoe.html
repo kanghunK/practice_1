@@ -41,71 +41,107 @@
 
         const rows = [];
         let turn = 'O';
-        // const data = [];
-        // for (let i = 0; i < 3; i++) {
-        //     data.push([]);
-        // }
 
         const $table = document.createElement('table');
         const $result = document.createElement('div');
 
+
+
         // 승자 판별 함수
         const checkWinner = (target) => {
+            console.log(target);
             let rowIndex = target.parentNode.rowIndex;
             let cellIndex = target.cellIndex;
 
-            // 위 내용 수정 후 주석처리 rowIndex와 cellIndex
-            // rows.forEach((row, ri) => {
-            //     row.forEach((cell,ci) => {
-            //         if (cell === target) {
-            //             rowIndex = ri;
-            //             cellIndex = ci;
-            //         }
-            //     });
-            // });
             // 세 칸 다 채워졌나?
             let hasWinner = false;
             // 가로줄 검사
             if (
                 rows[rowIndex][0].textContent === turn &&
                 rows[rowIndex][1].textContent === turn &&
-                rows[rowIndex][2].textContent === turn 
-                 
-             ) {
+                rows[rowIndex][2].textContent === turn
+
+            ) {
                 hasWinner = true;
             }
             // 세로줄 검사
             if (
                 rows[0][cellIndex].textContent === turn &&
                 rows[1][cellIndex].textContent === turn &&
-                rows[2][cellIndex].textContent === turn 
-                 
-             ) { 
+                rows[2][cellIndex].textContent === turn
+
+            ) {
                 hasWinner = true;
             }
             // 대각선 검사
             if (
                 rows[0][0].textContent === turn &&
                 rows[1][1].textContent === turn &&
-                rows[2][2].textContent === turn 
-                 
-             ) {
+                rows[2][2].textContent === turn
+
+            ) {
                 hasWinner = true;
             }
             if (
                 rows[0][2].textContent === turn &&
                 rows[1][1].textContent === turn &&
-                rows[2][0].textContent === turn 
-                 
-             ) {
+                rows[2][0].textContent === turn
+
+            ) {
                 hasWinner = true;
             }
-            return hasWinner;    
+            return hasWinner;
         }
 
+        //
+        function checkMain(target) {
+            const hasWinner = checkWinner(target);
+            //승부 판단
+            if (hasWinner) {
+                $result.textContent = `${turn}님이 승리하셨습니다.!`;
+                $table.removeEventListener('click', callback);
+                return;
+            }
+
+            // 무승부 판단
+            let draw = rows.flat().every((cell) => cell.textContent);
+
+            if (draw) {
+                $result.textContent = `무승부`;
+                return;
+            }
+
+            turn = turn === 'X' ? 'O' : 'X';
+        }
+
+        function computerInput(turn) {
+            let randomNum = Math.floor(Math.random() * checkArray.length);
+            console.log(randomNum);
+            let $selectTd = checkArray[randomNum];
+
+            // 전부 칸이 찼을 경우
+            let fullInput = rows.flat().every((cell) => cell.textContent);
+
+
+            if (fullInput)
+                return;
+
+            checkMain($selectTd);
+            //랜덤으로 선택된 배열 인덱스 제거
+            checkArray = rows.flat().filter((element) => !element.textContent);
+            $selectTd.textContent = turn;
+        }
+
+        // 클릭변수
+        let clickable = true;
 
         // Table 클릭 시 o,x 표시하는 callback
         const callback = (event) => {
+            // 컴퓨터가 입력하는 시간동안에 누르지 못하게 하는 설정
+            if (!clickable) {
+                return;
+            }
+
             /*  
                 현재 event.target은 td인데 $table에 이벤트를 걸어준상황.
                 즉, 이벤트 버블링이 발생해서 td에서 table까지 이벤트가 전파됨. table을 선택하고 싶으면 currentTarget 사용.
@@ -124,50 +160,40 @@
                 console.log('빈칸이 아닙니다.');
                 return;
             }
-            console.log('빈칸입니다.');
             event.target.textContent = turn;
 
-            const hasWinner = checkWinner(event.target);
-            //승부 판단
-            if (hasWinner) {
-                $result.textContent = `${turn}님이 승리하셨습니다.!`;
-                $table.removeEventListener('click',callback);
-                return;
+            // 사람이 선택한 값의 배열 인덱스 제거
+            checkArray = rows.flat().filter((element) => !element.textContent);
+            // 승리 분석 및 무승부 판별
+            checkMain(event.target);
+
+            clickable = false;
+            // 컴퓨터가 랜덤으로 입력
+            if (turn === "X"){
+                setTimeout(() => {
+                    computerInput(turn);
+                    clickable = true;
+                }, 1000);
             }
 
-            // 무승부 판단
-            // every로 코드 최신화
-            let draw = rows.flat().every((cell) => cell.textContent);
-
-            // let draw = true;
-            // rows.forEach((row) => {
-            //     row.forEach((cell) => {
-            //         console.log(row, cell);
-            //         if(!cell.textContent) {
-            //             draw = false;
-            //         }
-            //     })
-            // });
-            if (draw) {
-                $result.textContent = `무승부`;
-                return;
-            }
-
-            turn = (turn === 'O' ? 'X':'O');
         };
 
-
-            for (let i = 0; i < 3; i++) {
-                const $tr = document.createElement('tr');
-                const cells = [];
-                for (let j = 0; j < 3; j++) {
-                    $td = document.createElement('td');
-                    cells.push($td);
-                    $tr.append($td);
-                }
+        //테이블 생성
+        for (let i = 0; i < 3; i++) {
+            const $tr = document.createElement('tr');
+            const cells = [];
+            for (let j = 0; j < 3; j++) {
+                $td = document.createElement('td');
+                cells.push($td);
+                $tr.append($td);
+            }
             rows.push(cells);
             $table.append($tr);
         }
+
+        // 배열 중복 체크 변수.
+        let checkArray = [];
+
         // 클릭 시 o,x 표시..이벤트 버블링 활용.(이벤트가 부모태그 따라서 방울방울 올라간다.)
         $table.addEventListener('click', callback);
 
