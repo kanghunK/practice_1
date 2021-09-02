@@ -31,13 +31,13 @@
       <div id="battle-3">3.도망</div>
       <input id="battle-input" />
       <button id="battle-button">입력</button>
+      <div id="monster-stat">
+        <span id="monster-name"></span>
+        <span id="monster-hp"></span>
+        <span id="monster-att"></span>
+      </div>
     </form>
     <div id="message"></div>
-    <div id="monster-stat">
-      <span id="monster-name"></span>
-      <span id="monster-hp"></span>
-      <span id="monster-att"></span>
-    </div>
   </div>
   <script>
     const $startScreen = document.querySelector('#start-screen');
@@ -52,11 +52,13 @@
     const $monsterHp = document.querySelector('#monster-hp');
     const $monsterAtt = document.querySelector('#monster-att');
     const $message = document.querySelector('#message');
+    const $screen = document.querySelector('#screen');
 
     class Game {
       constructor(name) {
         this.hero = null;
         this.monster = null;
+        this.submitable = true;
         this.monsterList = [
           { name: '슬라임', hp: 25, att: 10, xp: 10 },
           { name: '스켈레톤', hp: 50, att: 15, xp: 20 },
@@ -99,10 +101,23 @@
           $heroAtt.textContent = '';
           return;
         }
+        if (hero.xp >= hero.lev * 15) {
+          $message.textContent = '레벨업 하였습니다.';
+          hero.xp = hero.xp - hero.lev * 15;
+          hero.att += hero.lev * 5;
+          hero.lev += 1;
+        }
+        else if (hero.xp < 0) {
+          hero.xp = 0;
+        }
+
+        if (hero.hp > hero.maxHp) {
+          hero.hp = hero.maxHp;
+        }
         $heroName.textContent = `${hero.name}의 정보: `;
         $heroLevel.textContent = `${hero.lev}Lev`;
-        $heroHp.textContent = `HP: ${hero.hp}`;
-        $heroXp.textContent = `XP: ${hero.hp}/${hero.maxHp}`;
+        $heroHp.textContent = `HP: ${hero.hp}/${hero.maxHp}`;
+        $heroXp.textContent = `XP: ${hero.xp}/${hero.lev * 15}`;
         $heroAtt.textContent = `ATT: ${hero.att}`;
       }
 
@@ -134,8 +149,22 @@
         game = null;
       }
 
+      changeModeDelay() {
+        this.submitable = false;
+        setTimeout(() => {
+          $message.textContent = '';
+          this.submitable = true;
+        }, 2000);
+        this.hero.xp += this.monster.xp;
+        this.changeScreen('game'); 
+        this.updateHeroState();
+      }
+
       onGameMenu = (event) => {
         event.preventDefault();
+        if (!this.submitable) {
+          return;
+        }
         const input = event.target['menu-input'].value;
         if (input === '1') { // 모험
           this.changeScreen('battle');
@@ -162,6 +191,9 @@
 
       onBattleMenu = (event) => {
         event.preventDefault();
+        if (!this.submitable) {
+          return;
+        }
         const input = event.target['battle-input'].value;
         if (input === '1') { // 공격
           this.hero.attack(this.monster);
@@ -169,10 +201,26 @@
           $heroHp.textContent = `HP: ${this.hero.hp}/${this.hero.maxHp}`;
           $monsterHp.textContent = `HP: ${this.monster.hp}/${this.monster.maxHp}`;
           $message.textContent = `${this.hero.att}의 데미지를 주고, ${this.monster.att}의 데미지를 받았다.`;
+          if (this.hero.hp <= 0) {
+            $message.innerHTML += '<br>체력이 모두 소진되어 사망합니다..마을로 갑니다.';
+            this.hero.hp = this.hero.maxHp;
+            this.hero.xp -= this.monster.xp;
+            this.changeModeDelay();
+          }
+          else if (this.monster.hp <= 0) {
+            $message.textContent = `몬스터 사냥에 성공하였습니다.! ${this.monster.xp}의 경험치를 얻습니다.`;
+            this.hero.xp += this.monster.xp;
+            this.changeModeDelay();
+          }
         } else if (input === '2') { // 회복
-
+          let recovery = Math.floor(this.hero.hp / 3);
+          $message.textContent = `${recovery}만큼의 체력을 회복합니다.`
+          this.hero.hp += recovery;
+          this.updateHeroState();
         } else if (input === '3') { // 도망
-
+          $message.textContent = '마을로 도망칩니다..!';
+          this.hero.xp -= Math.floor(this.monster.xp / 2);
+          this.changeModeDelay();
         }
       }
     }
@@ -192,7 +240,7 @@
 
     class Hero extends Unit {
       constructor(game, name) {
-        super(game, name, 100, 10, 0);
+        super(game, name, 100, 0, 10);
         this.maxHp = 100;
         this.lev = 1;
       }
