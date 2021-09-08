@@ -48,13 +48,25 @@
 
 <body>
   <div id="wrapper"></div>
+  <button type="button" id="resetBtn">초기화</button>
   <script>
     const $wrapper = document.querySelector('#wrapper');
-
-    const total = 12;
-    const colors = ['red', 'orange', 'yellow', 'green', 'white', 'pink'];
-    let colorCopy = colors.concat(colors);
+    const $resetBtn = document.querySelector('#resetBtn');
+    const total = parseInt(prompt('카드 개수를 짝수로 입력하세요(최대 20)'));
+    const colors = 
+    [
+      'red', 'orange', 'yellow',
+       'green', 'white', 'pink',
+       'coral', 'grey',
+    ];
+    let colorSlice = colors.slice(0, total / 2);
+    let colorCopy = colorSlice.concat(colorSlice);
+    let clickable = true;
     let shuffled = [];
+    let clicked = [];
+    let completed = [];
+    let startTime, endTime;
+
 
     function shuffle() { // 피셔-예이츠 셔플
       for (let i = 0; colorCopy.length > 0; i += 1) {
@@ -79,28 +91,95 @@
       return card;
     }
 
+    function onClickCard() {
+      // 카드 섞는 도중 클릭, 클릭했던 카드 연달아 클릭되는 현상,
+      //  완료된 카드 클릭되는 현상 막기
+      if (!clickable || completed.includes(this) || clicked[0] === this)
+        return;
+      this.classList.toggle('flipped');
+
+      // 2장의 카드를 비교하는 배열에 넣음
+      clicked.push(this);
+      if (clicked.length !== 2) {
+        return;
+      }
+
+      clickable = false;
+      const firstBackColor = clicked[0].querySelector('.card-back').style.backgroundColor;
+      const secondBackColor = clicked[1].querySelector('.card-back').style.backgroundColor;
+
+      if (firstBackColor === secondBackColor) {
+        clickable = true;
+        completed.push(clicked[0]);
+        completed.push(clicked[1]);
+        // 이렇게 위 두 줄을 작성 가능.. completed.concat(clicked);
+        clicked = [];
+        if (completed.length !== total) {
+          return;
+        }
+        endTime = new Date();
+        setTimeout(() => {
+          alert(`축하합니다!`);
+          const text =  document.createElement('span');
+          text.innerHTML = `<br>기록은 ${(endTime - startTime) / 1000}초 입니다.`;
+          $wrapper.append(text);
+          // resetGame();
+        }, 1000);
+        return;
+      }
+
+      setTimeout(() => {
+        clicked[0].classList.remove('flipped');
+        clicked[1].classList.remove('flipped');
+        clicked = [];
+        clickable = true;
+      }, 1000);
+
+    }
+
     function startGame() {
+      clickable = false;
+
       shuffle();
       for (let i = 0; i < total; i += 1) {
         const card = createCard(i);
+        card.addEventListener('click', onClickCard)
         $wrapper.appendChild(card);
       }
 
-      document.querySelectorAll('.card').forEach((card, index) => { // 초반 카드 공개
+      // 초반 카드 공개
+      document.querySelectorAll('.card').forEach((card, index) => {
         setTimeout(() => {
           card.classList.add('flipped');
         }, 1000 + 100 * index);
       });
 
-      setTimeout(() => { // 카드 감추기
+      // 카드 감추기
+      setTimeout(() => { 
         document.querySelectorAll('.card').forEach((card) => {
           card.classList.remove('flipped');
         });
         clickable = true;
+        startTime = new Date();
       }, 5000);
+
+
+    }
+    
+    function resetGame() {
+      $wrapper.innerHTML = '';
+      colorCopy = colors.concat(colors);
+      shuffled = [];
+      completed = [];
+      startGame();
+    }
+    
+    function init() {
+      startGame();
+      $resetBtn.addEventListener('click',resetGame);
     }
 
-    startGame();
+    init();
   </script>
 </body>
 

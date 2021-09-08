@@ -200,7 +200,7 @@
           this.monster.attack(this.hero);
           $heroHp.textContent = `HP: ${this.hero.hp}/${this.hero.maxHp}`;
           $monsterHp.textContent = `HP: ${this.monster.hp}/${this.monster.maxHp}`;
-          $message.textContent = `${this.hero.att}의 데미지를 주고, ${this.monster.att}의 데미지를 받았다.`;
+          this.showMessage(`${this.hero.att}의 데미지를 주고, ${this.monster.att}의 데미지를 받았다.`);
           if (this.hero.hp <= 0) {
             $message.innerHTML += '<br>체력이 모두 소진되어 사망합니다..마을로 갑니다.';
             this.hero.hp = this.hero.maxHp;
@@ -208,17 +208,18 @@
             this.changeModeDelay();
           }
           else if (this.monster.hp <= 0) {
-            $message.textContent = `몬스터 사냥에 성공하였습니다.! ${this.monster.xp}의 경험치를 얻습니다.`;
+            this.showMessage(`몬스터 사냥에 성공하였습니다.! ${this.monster.xp}의 경험치를 얻습니다.`);
             this.hero.xp += this.monster.xp;
             this.changeModeDelay();
           }
         } else if (input === '2') { // 회복
           let recovery = Math.floor(this.hero.hp / 3);
-          $message.textContent = `${recovery}만큼의 체력을 회복합니다.`
-          this.hero.hp += recovery;
+          this.showMessage(`체력을 회복합니다.`);
+          this.hero.hp = Math.min(this.hero.maxHp, this.hero.hp+recovery);
+          this.monster.attack(this.hero);
           this.updateHeroState();
         } else if (input === '3') { // 도망
-          $message.textContent = '마을로 도망칩니다..!';
+          this.showMessage('마을로 도망칩니다..!');
           this.hero.xp -= Math.floor(this.monster.xp / 2);
           this.changeModeDelay();
         }
