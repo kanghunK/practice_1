@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>지뢰찾기</title>
+  <style>
+    .blind {
+      position: absolute;
+      clip: rect(0 0 0 0);
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+    }
+
+    table {
+      border-collapse: collapse;
+    }
+
+    td {
+      border: 1px solid #bbb;
+      text-align: center;
+      line-height: 20px;
+      width: 20px;
+      height: 20px;
+      background: #888;
+    }
+
+    td.opened {
+      background: white;
+    }
+
+    td.flag {
+      background: red;
+    }
+
+    td.question {
+      background: orange;
+    }
+  </style>
+</head>
+
+<body>
+  <form id="form">
+    <input placeholder="가로 줄" id="row" size="5" />
+    <input placeholder="세로 줄" id="cell" size="5" />
+    <!-- <input placeholder="지뢰" id="mine" size="5" /> -->
+    <button type="submit" id="createBtn">생성</button>
+  </form>
+  <div id="timer">0초</div>
+  <table id="table">
+    <tbody id="tbody"></tbody>
+  </table>
+  <div id="result"></div>
+  <script>
+    const $timer = document.querySelector('#timer');
+    const $form = document.querySelector('#form');
+    const $tbody = document.querySelector('#table #tbody');
+    const $result = document.querySelector('#result');
+    const $rowInput = document.querySelector('#row');
+    const $columnInput = document.querySelector('#cell');
+    const $createBtn = document.querySelector('#createBtn');
+    let row;  // 줄
+    let cell; // 칸
+    let mine;
+    const CODE = {
+      NORMAL: -1,         // 닫힌 칸 (지뢰 x)
+      QUESTION: -2,       // 물음표 칸(지뢰 x)
+      FLAG: -3,           // 깃발 칸(지뢰 x)
+      QUESTION_MINE: -4,  // 물음표 칸(지뢰 o)
+      FLAG_MINE: -5,      // 깃발 칸(지뢰 o)
+      MINE: -6,           // 닫힌 칸(지뢰 o)
+      OPENED: 0,          // 0이상이면 모두 다 열린 칸
+    }
+    let data;         // 맵 정보
+    let openCount = 0;
+    let startTime;
+    let interval;
+
+
+    function plantMine() {
+      mine = Math.floor((row * cell) / 100);
+      const candidate = Array(row * cell).fill().map((arr, i) => {
+        return i;
+      });
+      // 지뢰 위치 정하기
+      const shuffled = [];
+      for (let i = 0; i < mine; i++) {
+        const chosen = candidate.splice(Math.floor(Math.random() * candidate.length), 1)[0];
+        shuffled.push(chosen);
+      }
+      // 맵을 배열에 넣어 만들기
+      const data = [];
+      for (let i = 0; i < row; i++) {
+        const rowData = [];
+        data.push(rowData);
+        for (let j = 0; j < cell; j++) {
+          rowData.push(CODE.NORMAL);
+        }
+      }
+
+      // 1차원 맵을 표현한 배열에 지뢰를 넣는 코드
+      for (let k = 0; k < shuffled.length; k++) {
+        const ver = Math.floor(shuffled[k] / cell);
+        const hor = shuffled[k] % cell;
+        data[ver][hor] = CODE.MINE;
+      }
+      return data;
+    }
+
+    function onRightClick(event) {
+      event.preventDefault();
+      const selectTd = event.target;
+      const rowIndex = selectTd.parentNode.rowIndex;
+      const cellIndex = selectTd.cellIndex;
+      let selectData = data[rowIndex][cellIndex];
+
+      if (selectData === CODE.MINE)                   // 지뢰가 있는 곳에 깃발 표시
+        data[rowIndex][cellIndex] = CODE.FLAG_MINE;
+      else if (selectData === CODE.NORMAL)            // 지뢰가 없는 곳 깃발 표시
+        data[rowIndex][cellIndex] = CODE.FLAG;
+      else if (selectData === CODE.FLAG_MINE)         // 지뢰가 있는 깃발 -> 물음표 표시
+        data[rowIndex][cellIndex] = CODE.QUESTION_MINE;
+      else if (selectData === CODE.FLAG)              // 지뢰가 없는 깃발 -> 물음표 표시
+        data[rowIndex][cellIndex] = CODE.QUESTION;
+      else if (selectData === CODE.QUESTION_MINE)     // 지뢰가 있는 물음표 -> 지뢰 표시
+        data[rowIndex][cellIndex] = CODE.MINE;
+      else if (selectData === CODE.QUESTION)          // 지뢰가 없는 물음표 -> 닫힌 칸 표시
+        data[rowIndex][cellIndex] = CODE.NORMAL;
+
+      selectData = data[rowIndex][cellIndex];
+
+      if (selectData === CODE.FLAG || selectData === CODE.FLAG_MINE) {
+        selectTd.classList.add('flag');
+        selectTd.textContent = '!';
+      }
+      else if (selectData === CODE.QUESTION || selectData === CODE.QUESTION_MINE) {
+        selectTd.classList.add('question');
+        selectTd.textContent = '?';
+      }
+      else {
+        selectTd.classList.remove('flag', 'question');
+        selectTd.textContent = '';
+      }
+    }
+
+    // 1 2 3
+    // 4 5 6
+    // 7 8 9
+
+    function countMine(rowIndex, cellIndex) {
+      let count = 0;
+      const direction = [[0, 1], [1, 1], [1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1]];     // 방향 오른쪽, 아래, 왼쪽, 위
+      const celldata = data[rowIndex][cellIndex];
+      for (let i = 0; i < direction.length; i++) {
+        let row = rowIndex + direction[i][0];
+        let col = cellIndex + direction[i][1];
+        if (row < 0 || row >= data[rowIndex].length)
+          continue;
+        else if (col < 0 || col >= data[rowIndex].length)
+          continue;
+
+        if ([CODE.QUESTION_MINE, CODE.MINE, CODE.FLAG_MINE].includes(data[row][col])) {
+          count += 1;
+        }
+      }
+      return count;
+    }
+
+    function open(rowIndex, cellIndex) {
+      // 한 번 연 칸일 경우 return 해서 종료한다..
+      // 그리고 주변 칸을 열 때 테이블 밖으로 나갈 수도 있기 때문에 ?.으로 보호해주어야한다.
+      if (data[rowIndex]?.[cellIndex] >= CODE.OPENED) return;
+      const target = $tbody.children[rowIndex]?.children[cellIndex];
+      if (!target) {
+        return;
+      }
+      const count = countMine(rowIndex, cellIndex);
+      target.textContent = count || '';
+      target.className = 'opened';
+      data[rowIndex][cellIndex] = count;
+      openCount++;
+      console.log(openCount);
+      if (openCount === row * cell - mine) {
+        clearTimeout(interval);
+        const time = (new Date() - startTime) / 1000;
+        $tbody.removeEventListener('click', onLeftClick);
+        $tbody.removeEventListener('contextmenu', onRightClick);
+        // 화면이 바뀔 수 있는 시간 주기
+        setTimeout(() => {
+          alert(`승리하셨습니다...기록은 ${time}초 입니다.`);
+        }, 200);
+      }
+      return count;
+    }
+
+    // 주변 칸 열기... 재귀함수 활용
+    function openAround(rI, cI) {
+      const count = open(rI, cI);
+      // 호출 스택 Maximum error 나는 현상 때문에 setTimeout으로 
+      // 호출 스택에 가득 찬 스택들을 백그라운드 영역으로 분산시키고 나중에 태스크 영역으로 간다. 
+      setTimeout(() => {
+        if (count === 0) {
+          openAround(rI - 1, cI - 1);
+          openAround(rI - 1, cI);
+          openAround(rI - 1, cI + 1);
+          openAround(rI, cI - 1);
+          openAround(rI, cI + 1);
+          openAround(rI + 1, cI - 1);
+          openAround(rI + 1, cI);
+          openAround(rI + 1, cI + 1);
+        }
+      }, 0);
+    }
+
+    function onLeftClick(event) {
+      const target = event.target;
+      const rowIndex = target.parentNode.rowIndex;
+      const cellIndex = target.cellIndex;
+      const cellData = data[rowIndex][cellIndex];
+      if (cellData === CODE.NORMAL) {
+        openAround(rowIndex, cellIndex);
+      } else if (cellData === CODE.MINE) {    // 지뢰를 클릭. 게임종료
+        target.textContent = '펑';
+        target.className = 'opened';
+        alert('지뢰를 클릭했습니다..');
+        clearInterval(interval);
+        $tbody.removeEventListener('contextmenu', onRightClick);
+        $tbody.removeEventListener('click', onLeftClick);
+      }
+      // 나머지 동작 안함.
+    }
+
+    const drawTable = () => {
+      row = parseInt($rowInput.value);
+      cell = parseInt($columnInput.value);
+      data = plantMine();
+      startTime = new Date();
+      interval = setInterval(() => {
+        const time = Math.floor((new Date() - startTime) / 1000);
+        $timer.textContent = `${time}초`;
+      }, 1000);
+
+      data.forEach((row) => {
+        const $tr = document.createElement('tr');
+        row.forEach((cell) => {
+          const $td = document.createElement('td');
+          if (cell === CODE.MINE)
+            $td.textContent = 'X';
+          $tr.append($td);
+        });
+        $tbody.append($tr);
+      });
+      $tbody.addEventListener('click', onLeftClick);
+      $tbody.addEventListener('contextmenu', onRightClick);
+    }
+
+    function onSubmit(event) {
+      event.preventDefault();
+      $form.classList.add('blind');
+      drawTable();
+    }
+
+    function init() {
+      $form.addEventListener('submit', onSubmit);
+    }
+
+    init();
+  </script>
+</body>
+
+</html>
