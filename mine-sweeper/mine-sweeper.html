@@ -52,6 +52,7 @@
   <table id="table">
     <tbody id="tbody"></tbody>
   </table>
+  <button type="button" id="reset">RESET</button>
   <div id="result"></div>
   <script>
     const $timer = document.querySelector('#timer');
@@ -61,6 +62,7 @@
     const $rowInput = document.querySelector('#row');
     const $columnInput = document.querySelector('#cell');
     const $createBtn = document.querySelector('#createBtn');
+    const $reset = document.querySelector('#reset');
     let row;  // 줄
     let cell; // 칸
     let mine;
@@ -74,13 +76,15 @@
       OPENED: 0,          // 0이상이면 모두 다 열린 칸
     }
     let data;         // 맵 정보
-    let openCount = 0;
+    let openCount;
     let startTime;
     let interval;
+    let firstClick = true;
 
 
     function plantMine() {
-      mine = Math.floor((row * cell) / 100);
+      // mine = Math.floor((row * cell) * 0.7);
+      mine = 98;
       const candidate = Array(row * cell).fill().map((arr, i) => {
         return i;
       });
@@ -181,9 +185,8 @@
       target.className = 'opened';
       data[rowIndex][cellIndex] = count;
       openCount++;
-      console.log(openCount);
       if (openCount === row * cell - mine) {
-        clearTimeout(interval);
+        clearInterval(interval);
         const time = (new Date() - startTime) / 1000;
         $tbody.removeEventListener('click', onLeftClick);
         $tbody.removeEventListener('contextmenu', onRightClick);
@@ -214,17 +217,68 @@
       }, 0);
     }
 
+    function showMine() {
+      const mines = [CODE.MINE, CODE.QUESTION_MINE, CODE.FLAG_MINE];
+      data.forEach((row, rowIndex) => {
+        row.forEach((cell, cellIndex) => {
+          if (mines.includes(cell)) {
+            $tbody.children[rowIndex].children[cellIndex].textContent = 'X';
+          }
+        });
+      });
+    }
+
+    function preventFirstBomb(rI, cI) {
+      // 열을 바꿔서 행을 1씩 더하여 폭탄두게 하기
+      if (cI >= data[0].length)
+        cI = 0;
+      // 행을 1씩 더하며 폭탄없는 곳에 폭탄 두기
+      let rowI = rI;
+      for (let i = 0; i < data[0].length - 1; i++) {
+        rowI++;
+        if (rowI >= data[0].length)
+          rowI = 0;
+        if (data[rowI][cI] == CODE.NORMAL) {
+          data[rowI][cI] = CODE.MINE;
+          return ;
+        }
+      }
+      preventFirstBomb(rI, cI + 1);
+    }
+
     function onLeftClick(event) {
       const target = event.target;
       const rowIndex = target.parentNode.rowIndex;
       const cellIndex = target.cellIndex;
-      const cellData = data[rowIndex][cellIndex];
+      let cellData = data[rowIndex][cellIndex];
+
+      // 첫 클릭에 지뢰를 밟는 현상 막기
+      if (firstClick && cellData == CODE.MINE) {
+        firstClick = false;
+        data[rowIndex][cellIndex] = CODE.NORMAL;
+        preventFirstBomb(rowIndex, cellIndex);
+      }
+      firstClick = false;
+      // 데이터 다시 초기화
+      cellData = data[rowIndex][cellIndex];
+
+      // 폭탄확인.. [개발모드]
+      // data.forEach((row, rowIndex) => {
+      //   row.forEach((cell, cellIndex) => {
+      //     if (cell == CODE.MINE)
+      //       $tbody.children[rowIndex].children[cellIndex].style.backgroundColor = 'red';
+      //   });
+      // });
+
       if (cellData === CODE.NORMAL) {
         openAround(rowIndex, cellIndex);
       } else if (cellData === CODE.MINE) {    // 지뢰를 클릭. 게임종료
         target.textContent = '펑';
         target.className = 'opened';
-        alert('지뢰를 클릭했습니다..');
+        setTimeout(() => {
+          alert('지뢰를 클릭했습니다..');
+          showMine();
+        }, 0);
         clearInterval(interval);
         $tbody.removeEventListener('contextmenu', onRightClick);
         $tbody.removeEventListener('click', onLeftClick);
@@ -233,6 +287,7 @@
     }
 
     const drawTable = () => {
+      openCount = 0;
       row = parseInt($rowInput.value);
       cell = parseInt($columnInput.value);
       data = plantMine();
@@ -246,8 +301,8 @@
         const $tr = document.createElement('tr');
         row.forEach((cell) => {
           const $td = document.createElement('td');
-          if (cell === CODE.MINE)
-            $td.textContent = 'X';
+          // if (cell === CODE.MINE)
+          //   $td.textContent = 'X';
           $tr.append($td);
         });
         $tbody.append($tr);
@@ -262,8 +317,21 @@
       drawTable();
     }
 
+    function resetGame() {
+      $form.classList.remove('blind');
+      $tbody.innerHTML = '';
+      $result.textContent = '';
+      $timer.textContent = '0초'
+      const inputText = $form.querySelectorAll('input');
+      inputText[0].value = '';
+      inputText[1].value = '';
+      firstClick = true;
+      clearInterval(interval);
+    }
+
     function init() {
       $form.addEventListener('submit', onSubmit);
+      $reset.addEventListener('click', resetGame);
     }
 
     init();
