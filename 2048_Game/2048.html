@@ -1,0 +1,383 @@
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <script src="C:\Users\rnjsr\Desktop\programing\lodash\lodash.js"></script>
+  <title>2048</title>
+  <style>
+    #table {
+      border-collapse: collapse;
+      user-select: none;
+    }
+
+    #table td {
+      border: 10px solid #bbada0;
+      width: 116px;
+      height: 128px;
+      font-size: 50px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    #score {
+      user-select: none;
+    }
+
+    .color-2 {
+      background-color: #eee4da;
+      color: #776e65;
+    }
+
+    .color-4 {
+      background-color: #eee1c9;
+      color: #776e65;
+    }
+
+    .color-8 {
+      background-color: #f3b27a;
+      color: 'white';
+    }
+
+    .color-16 {
+      background-color: #f69664;
+      color: 'white';
+    }
+
+    .color-32 {
+      background-color: #f77c5f;
+      color: 'white';
+    }
+
+    .color-64 {
+      background-color: #f75f3b;
+      color: 'white';
+    }
+
+    .color-128 {
+      background-color: #edd073;
+      color: #776e65;
+    }
+
+    .color-256 {
+      background-color: #edcc62;
+      color: #776e65;
+    }
+
+    .color-512 {
+      background-color: #edc950;
+      color: #776e65;
+    }
+
+    .color-1024 {
+      background-color: #edc53f;
+      color: #776e65;
+    }
+
+    .color-2048 {
+      background-color: #edc22e;
+      color: #776e65;
+    }
+
+    .set_back {
+      position: absolute;
+      left: 570px;
+      top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <table id="table"></table>
+  <div id="score">0</div>
+  <button type="button" class="set_back">되돌리기</button>
+  <script>
+    const $table = document.getElementById('table');
+    const $score = document.getElementById('score');
+    const $backBtn = document.querySelector('.set_back');
+    let data = [];
+    const history = [];
+
+    // class Queue {
+    //   constructor() {
+    //     this._arr = [];
+    //   }
+    //   enqueue(item) {
+    //     this._arr.push(item);
+    //   }
+    //   dequeue() {
+    //     return this._arr.shift();
+    //   }
+    //   pop() {
+    //     return this._arr.pop();
+    //   }
+    // }
+    // let data_copy = new Queue();
+
+
+    function endGame() {
+      window.removeEventListener('mousedown', mousedownStart);
+      window.removeEventListener('mouseup', mousedownEnd);
+      window.removeEventListener('keyup', keyupEvent);
+      $backBtn.removeEventListener('click', undoMap);
+    }
+
+    /*
+    
+      삭제하고 history 리터럴로 대체
+
+      // 게임 실행 undo 기능 추가...이전 3회까지 가능
+      // function deepCopy_data() {
+        //   data_copy.enqueue(_.cloneDeep(data));
+        //   if (data_copy._arr.length > 10) {
+          //     data_copy.dequeue();
+          //   }
+          // }
+    */
+
+    // 셀들을 옮겨주는 역할
+    function moveCells(direction) {
+      if (history.length > 30) {
+        history.shift();
+      }
+      history.push({
+        table: _.cloneDeep(data), 
+        score: $score.textContent,
+      });
+      switch (direction) {
+        case 'left': {
+          const newData = [[], [], [], []];
+          data.forEach((rowData, i) => {
+            rowData.forEach((cellData, j) => {
+              if (cellData) {
+                const currentRow = newData[i];
+                const prevData = currentRow[currentRow.length - 1];
+                if (prevData === cellData) {    // 이전 값과 지금 값이 같으면
+                  const score = parseInt($score.textContent);
+                  $score.textContent = score + currentRow[currentRow.length - 1] * 2;
+                  currentRow[currentRow.length - 1] *= -2; // 한 번에 합쳐지는 현상 방지하기 위해 -를 넣음
+                } else {
+                  newData[i].push(cellData);
+                }
+              }
+            });
+          });
+          [1, 2, 3, 4].forEach((rowData, i) => {
+            [1, 2, 3, 4].forEach((cellData, j) => {
+              data[i][j] = Math.abs(newData[i][j]) || 0; // 화면에 띄울 때는 아까 -를 붙였던것 제거
+            });
+          });
+          break;
+        }
+        case 'right': {
+          const newData = [[], [], [], []];
+          data.forEach((rowData, i) => {
+            rowData.forEach((cellData, j) => {
+              if (rowData[3 - j]) {
+                const currentRow = newData[i];
+                const prevData = currentRow[currentRow.length - 1];
+                if (prevData === rowData[3 - j]) {
+                  const score = parseInt($score.textContent);
+                  $score.textContent = score + currentRow[currentRow.length - 1] * 2;
+                  currentRow[currentRow.length - 1] *= -2;
+                } else {
+                  newData[i].push(rowData[3 - j]);
+                }
+              }
+            });
+          });
+          [1, 2, 3, 4].forEach((rowData, i) => {
+            [1, 2, 3, 4].forEach((cellData, j) => {
+              data[i][3 - j] = Math.abs(newData[i][j]) || 0;
+            });
+          });
+          break;
+        }
+        case 'up': {
+          const newData = [[], [], [], []];
+          data.forEach((rowData, i) => {
+            rowData.forEach((cellData, j) => {
+              if (cellData) {
+                const currentRow = newData[j];
+                const prevData = currentRow[currentRow.length - 1];
+                if (prevData === cellData) {
+                  const score = parseInt($score.textContent);
+                  $score.textContent = score + currentRow[currentRow.length - 1] * 2;
+                  currentRow[currentRow.length - 1] *= -2;
+                } else {
+                  newData[j].push(cellData);
+                }
+              }
+            });
+          });
+          [1, 2, 3, 4].forEach((rowData, i) => {
+            [1, 2, 3, 4].forEach((cellData, j) => {
+              data[j][i] = Math.abs(newData[i][j]) || 0;
+            });
+          });
+          break;
+        }
+        case 'down': {
+          const newData = [[], [], [], []];
+          data.forEach((rowData, i) => {
+            rowData.forEach((cellData, j) => {
+              if (data[3 - i][j]) {
+                const currentRow = newData[j];
+                const prevData = currentRow[currentRow.length - 1];
+                if (prevData === data[3 - i][j]) {
+                  const score = parseInt($score.textContent);
+                  $score.textContent = score + currentRow[currentRow.length - 1] * 2;
+                  currentRow[currentRow.length - 1] *= -2;
+                } else {
+                  newData[j].push(data[3 - i][j]);
+                }
+              }
+            });
+          });
+          [1, 2, 3, 4].forEach((rowData, i) => {
+            [1, 2, 3, 4].forEach((cellData, j) => {
+              data[3 - j][i] = Math.abs(newData[i][j]) || 0;
+            });
+          });
+          break;
+        }
+      }
+      if (data.flat().includes(2048)) { // 승리
+        draw();
+        endGame();
+        setTimeout(() => {
+          alert('축하합니다. 2048을 만들었습니다.!');
+        }, 0);
+      } else if (!data.flat().includes(0)) {  // 빈칸이 없으면 패배
+        alert(`패배했습니다...${$score.textContent}점`);
+        endGame();
+      } else {
+        put2ToRandomCell();
+        draw();
+      }
+    }
+
+    // window 이벤트 콜백함수들
+
+    const keyupEvent = (event) => {
+      if (event.key === 'ArrowUp') {
+        moveCells('up');
+      } else if (event.key === 'ArrowDown') {
+        moveCells('down');
+      } else if (event.key === 'ArrowLeft') {
+        moveCells('left');
+      } else if (event.key === 'ArrowRight') {
+        moveCells('right');
+      }
+    }
+
+    const mousedownStart = (event) => {
+      startCoord = [event.clientX, event.clientY];
+    }
+
+    const mousedownEnd = (event) => {
+      const endCoord = [event.clientX, event.clientY];
+      const diffX = endCoord[0] - startCoord[0];
+      const diffY = endCoord[1] - startCoord[1];
+      // 45도 각도를 기준으로 그 기준선의 위쪽일 때 위,~오른쪽,아래,왼쪽으로 움직인다.
+      if (diffX < 0 && Math.abs(diffX) > Math.abs(diffY)) {
+        moveCells('left');
+      } else if (diffX > 0 && Math.abs(diffX) > Math.abs(diffY)) {
+        moveCells('right');
+      } else if (diffY > 0 && Math.abs(diffX) <= Math.abs(diffY)) {
+        moveCells('down');
+      } else if (diffY < 0 && Math.abs(diffX) <= Math.abs(diffY)) {
+        moveCells('up');
+      }
+    }
+
+    const undoMap = (event) => {
+      const prevData = history.pop();
+      if (!prevData) {
+        alert('더 이상 되돌릴 수 없습니다...');
+        return;
+      }
+      data = prevData.table;
+      $score.textContent = prevData.score;
+      draw();
+    }
+
+    function eventRegister() {
+      // 화면상에서 키보드나 마우스를 이용했을 때 이벤트추가
+      // 키보드를 눌렀다 땔 때
+      window.addEventListener('keyup', keyupEvent);
+
+      // 마우스 이벤트가 발생했을 때 동작
+      let startCoord;
+      window.addEventListener('mousedown', mousedownStart);
+      window.addEventListener('mouseup', mousedownEnd);
+      $backBtn.addEventListener('click', undoMap);
+    }
+
+    function draw() {
+      // 2차원 배열은 항상 forEach가 두 번 나온다.
+      data.forEach((rowData, i) => {
+        rowData.forEach((cellData, j) => {
+          const $target = $table.children[i].children[j];
+          if (cellData > 0) {
+            $target.textContent = cellData;
+            $target.className = 'color-' + cellData;
+          } else {
+            $target.textContent = '';
+            $target.className = '';
+          }
+        });
+      });
+    }
+
+    function put2ToRandomCell() {
+      // 빈칸이  몇 번째 줄, 칸인지 기록하는 배열
+      const emptyCells = [];
+      data.forEach(function (rowData, i) {
+        rowData.forEach(function (cellData, j) {
+          if (!cellData) {
+            emptyCells.push([i, j]);
+          }
+        });
+      });
+      // data 배열에 랜덤한 칸을 선택해서 2를 저장한다.
+      const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+      data[randomCell[0]][randomCell[1]] = 2;
+    }
+
+    function startGame() {
+      eventRegister();
+      // createDocumentFragment() 이용하기..
+      // createDocumentFragment 를 이용하면 화면에 그리지 않고 메모리에 저장하고 있기 때문에 구현속도가 빨라진다.
+      const $fragment = document.createDocumentFragment();
+      [1, 2, 3, 4].forEach(function () {
+        const rowData = [];
+        data.push(rowData);
+        let $tr = document.createElement('tr');
+        [1, 2, 3, 4].forEach(function () {
+          rowData.push(0);
+          let $td = document.createElement('td');
+          $tr.append($td);
+        });
+        $fragment.appendChild($tr);
+      });
+      $table.appendChild($fragment);
+      put2ToRandomCell();
+      draw();
+    }
+
+    startGame();
+
+    // 테스트를 위한 가짜 데이터
+    // data = [
+    //   [32, 2, 4, 2],
+    //   [64, 4, 8, 4],
+    //   [2, 1024, 1024, 32],
+    //   [32, 16, 64, 4],
+    // ];
+    // draw();
+
+
+  </script>
+</body>
+
+</html>
